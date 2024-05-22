@@ -1,0 +1,26 @@
+name: Build Java Gradle
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_java_gradle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Build with Gradle Wrapper
+      run: ./gradlew build
+
+    - name: Publish Build Artifacts
+      uses: actions/upload-artifact@v4.3.3
+      with:
+        name: Artifact-${{ github.repository }}
+        path: build/libs/

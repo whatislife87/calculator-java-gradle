@@ -21,6 +21,11 @@ jobs:
     
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
+      with:
+        args: >
+          -X
+          -Dsonar.projectKey=calculator-java-gradle
+          -Dsonar.organization=estebanpulgarin
       env:
         GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}

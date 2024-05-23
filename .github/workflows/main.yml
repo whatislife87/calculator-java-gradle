@@ -22,7 +22,7 @@ jobs:
 
     - name: Build with Gradle Wrapper
       env:
-        SONAR_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN  }}
       run: |
         chmod +x ./gradlew
         ./gradlew build

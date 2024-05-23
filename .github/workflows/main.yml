@@ -29,30 +29,6 @@ jobs:
     - name: Run tests and generate Jacoco report
       run: ./gradlew test jacocoTestReport
 
-    - name: Publish to SonarQube
-      env:
-        SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN  }}
+    - name: Publish to SonarCloud
       run: |
         ./gradlew sonar
-
-    # - name: SonarCloud Scan
-    #   uses: sonarsource/sonarcloud-github-action@master
-    #   with:
-    #     args: >
-    #       -X
-    #       -Dsonar.organization=retodevsecops
-    #       -Dsonar.projectKey=calculator-java-gradle    
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
-    #     SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
-
-    # - name: Build with Gradle Wrapper
-    #   run: |
-    #     chmod +x ./gradlew
-    #     ./gradlew build
-
-    # - name: Publish Build Artifacts
-    #   uses: actions/upload-artifact@v4.3.3
-    #   with:
-    #     name: Artifact-${{ github.repository_id }}
-    #     path: build/libs/

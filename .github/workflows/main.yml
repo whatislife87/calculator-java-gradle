@@ -19,14 +19,20 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./gradlew
+    
+    - name: Build with Gradle
+      run: ./gradlew build
 
-    - name: Build with Gradle Wrapper
+    - name: Run tests and generate Jacoco report
+      run: ./gradlew test jacocoTestReport
+
+    - name: Publish to SonarQube
       env:
         SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN  }}
       run: |
-        chmod +x ./gradlew
-        ./gradlew build
-        ./gradlew test jacocoTestReport
         ./gradlew sonar -Dsonar.token=$SONAR_TOKEN
 
     # - name: SonarCloud Scan
@@ -40,13 +46,13 @@ jobs:
     #     GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
     #     SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
 
-    - name: Build with Gradle Wrapper
-      run: |
-        chmod +x ./gradlew
-        ./gradlew build
+    # - name: Build with Gradle Wrapper
+    #   run: |
+    #     chmod +x ./gradlew
+    #     ./gradlew build
 
-    - name: Publish Build Artifacts
-      uses: actions/upload-artifact@v4.3.3
-      with:
-        name: Artifact-${{ github.repository_id }}
-        path: build/libs/
+    # - name: Publish Build Artifacts
+    #   uses: actions/upload-artifact@v4.3.3
+    #   with:
+    #     name: Artifact-${{ github.repository_id }}
+    #     path: build/libs/

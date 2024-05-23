@@ -22,8 +22,10 @@ jobs:
 
     - name: Build with Gradle Wrapper
       run: |
-        chmod +x ./gradlew
-        ./gradlew sonarqube
+        chmod +x .\gradlew
+        .\gradlew build
+        .\gradlew test jacocoTestReport
+        .\gradlew sonar
 
     # - name: SonarCloud Scan
     #   uses: sonarsource/sonarcloud-github-action@master

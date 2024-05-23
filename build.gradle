@@ -24,7 +24,9 @@ sonar {
 	property "sonar.organization", "retodevsecops"
     property "sonar.projectKey", "calculator-java-gradle"
     property "sonar.host.url", "https://sonarcloud.io"
-	property "sonar.token", "5f9bf6338e44be1045e82eb883aaa53e4f06b7fa"
+	property "sonar.analysis.mode", "preview" // Cambia el modo de análisis a 'preview'
+    property "sonar.issuesReport.html.enable", true // Habilita el reporte de problemas
+	//property "sonar.token", "5f9bf6338e44be1045e82eb883aaa53e4f06b7fa"
   }
 }
 

@@ -21,11 +21,13 @@ jobs:
         distribution: 'temurin'
 
     - name: Build with Gradle Wrapper
+      env:
+        SONAR_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
       run: |
         chmod +x ./gradlew
         ./gradlew build
         ./gradlew test jacocoTestReport
-        ./gradlew sonar
+        ./gradlew sonar -Dsonar.token=$SONAR_TOKEN
 
     # - name: SonarCloud Scan
     #   uses: sonarsource/sonarcloud-github-action@master

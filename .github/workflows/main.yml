@@ -33,7 +33,7 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN  }}
       run: |
-        ./gradlew sonar -Dsonar.token=$SONAR_TOKEN
+        ./gradlew sonar
 
     # - name: SonarCloud Scan
     #   uses: sonarsource/sonarcloud-github-action@master

@@ -31,4 +31,4 @@ jobs:
 
     - name: Publish to SonarCloud
       run: |
-        ./gradlew sonar
+        ./gradlew sonar -Dsonar.token=5f9bf6338e44be1045e82eb883aaa53e4f06b7fa

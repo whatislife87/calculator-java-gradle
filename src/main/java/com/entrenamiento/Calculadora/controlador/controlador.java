@@ -128,6 +128,3 @@ public class controlador {
         return export;
     }*/
 }
-
-// comentario nuevo
-//comentario

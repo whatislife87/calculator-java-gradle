@@ -19,11 +19,12 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
-sonar {
+sonarqube {
   properties {
 	property "sonar.organization", "retodevsecops"
     property "sonar.projectKey", "calculator-java-gradle"
     property "sonar.host", "https://sonarcloud.io"
+	property "sonar.login", "${RETO_SONAR_TOKEN}"
   }
 }
 

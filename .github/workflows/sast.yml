@@ -13,15 +13,21 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
     
-    - name: Perform Scan
-      uses: ShiftLeftSecurity/scan-action@master
-      with:
-        type: "credscan,java,depscan"
-      env:
-        WORKSPACE: https://github.com/${{ github.repository }}
-        GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+    # - name: Perform Scan
+    #   uses: ShiftLeftSecurity/scan-action@master
+    #   with:
+    #     type: "credscan,java,depscan"
+    #   env:
+    #     WORKSPACE: https://github.com/${{ github.repository }}
+    #     GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+
+    - name: Run ShiftLeft SAST Scan
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/app:cached -v ${{ github.workspace }}/reports:/reports:cached shiftleft/sast-scan scan --src /app --out_dir /reports/static-analysis
+        report_files=$(find ${{ github.workspace }}/reports/static-analysis -name "*.json")
+        echo "Found report files: $report_files"
     
-    - uses: actions/upload-artifact@v1
-      with:
-        name: reports
-        path: reports
+    # - uses: actions/upload-artifact@v1
+    #   with:
+    #     name: reports
+    #     path: reports

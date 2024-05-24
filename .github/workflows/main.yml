@@ -8,7 +8,7 @@ jobs:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildJavaGradle.yml@main
     secrets:
       RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
-      RETO_GITHUB_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
+      RETO_SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
   
   artifactsManagement:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildAndPublishDockerImage.yml@main

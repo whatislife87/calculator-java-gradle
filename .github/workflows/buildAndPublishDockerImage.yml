@@ -1,0 +1,19 @@
+name: Build And Publish Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      image_name:
+        required: true
+        type: string
+      tag:
+        type: string
+
+jobs:
+  buildAndPublishDockerImage:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Echo image name and tag
+      run: |
+        echo "image ${{inputs.image_name}}"
+        echo "tag ${{inputs.tag}}"

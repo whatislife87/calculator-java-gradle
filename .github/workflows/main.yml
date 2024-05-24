@@ -10,7 +10,13 @@ jobs:
       RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
       RETO_SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
   
+  technicalExcellenceAssurance:
+    uses: retodevsecops/calculator-java-gradle/.github/workflows/sast.yml@main
+    secrets:
+      RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+  
   artifactsManagement:
+    needs: [developmentIntegration, technicalExcellenceAssurance]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildAndPublishDockerImage.yml@main
     with:
       image_name: calculator_java_gradle

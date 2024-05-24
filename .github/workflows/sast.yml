@@ -1,0 +1,27 @@
+name: SAST
+
+on:
+  workflow_call:
+    secrets:
+      RETO_GITHUB_TOKEN:
+        required: true
+
+jobs:
+  sast:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+    
+    - name: Perform Scan
+      uses: ShiftLeftSecurity/scan-action@master
+      with:
+        type: "credscan,python"
+      env:
+        WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
+        GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+    
+    - uses: actions/upload-artifact@v1
+      with:
+        name: reports
+        path: reports

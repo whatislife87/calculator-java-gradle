@@ -1,4 +1,4 @@
-name: SAST
+name: SAST and SCA
 
 on:
   workflow_call:
@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
 
     - name: Run ShiftLeft SAST Scan
       run: |
@@ -37,3 +39,32 @@ jobs:
     #   with:
     #     name: reports
     #     path: reports
+
+  sca:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
+    
+    - name: Build project with Maven
+      run: mvn clean install
+
+    - name: Depcheck
+      uses: dependency-check/Dependency-Check_Action@main
+      id: Depcheck
+      with:
+        project: 'test'
+        path: '.'
+        format: 'HTML'
+        out: 'reports'
+        args: >
+          --failOnCVSS 7
+          --enableRetired
+          
+    - name: Upload Test results
+      uses: actions/upload-artifact@master
+      with:
+          name: Depcheck report
+          path: ${{github.workspace}}/reports

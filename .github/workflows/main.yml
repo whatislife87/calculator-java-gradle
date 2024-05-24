@@ -1,18 +1,14 @@
 name: Reto DevSecOps
 
 on:
-  # push:
-  #   branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   developmentIntegration:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildJavaGradle.yml@main
     secrets:
-      GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
+      RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+      RETO_GITHUB_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
   
   artifactsManagement:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildAndPublishDockerImage.yml@main

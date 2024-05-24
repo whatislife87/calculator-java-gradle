@@ -18,7 +18,7 @@ jobs:
       with:
         type: "credscan,java,depscan"
       env:
-        WORKSPACE: https://github.com/${{ github.repository }}/blob/${{ github.sha }}
+        WORKSPACE: https://github.com/${{ github.repository }}
         GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
     
     - uses: actions/upload-artifact@v1

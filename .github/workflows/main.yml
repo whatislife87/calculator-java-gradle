@@ -19,6 +19,3 @@ jobs:
     # needs: [developmentIntegration, technicalExcellenceAssurance]
     needs: [developmentIntegration]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/createAndPublishDockerImage.yml@main
-    with:
-      image_name: calculator_java_gradle
-      tag: $GITHUB_RUN_NUMBER

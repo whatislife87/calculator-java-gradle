@@ -14,8 +14,12 @@ jobs:
   #   uses: retodevsecops/calculator-java-gradle/.github/workflows/sastAndSca.yml@main
   #   secrets:
   #     RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
-  
+
   artifactsManagement:
     # needs: [developmentIntegration, technicalExcellenceAssurance]
     needs: [developmentIntegration]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/createAndPublishDockerImage.yml@main
+    permissions:
+      contents: read
+      packages: write
+      attestations: write

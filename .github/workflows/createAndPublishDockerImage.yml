@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
+  buildAndPushImage:
     runs-on: ubuntu-latest
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
@@ -20,6 +20,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: build/libs
+
+      - name: Display structure of downloaded files
+        run: ls -R build/libs
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3.1.0
         with:

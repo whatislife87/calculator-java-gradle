@@ -33,20 +33,20 @@ jobs:
 
       - name: Azure login
         id: login
-        uses: azure/login@v1.4.3
+        uses: azure/login@v1.4.4
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Set AKS context
         id: set-context
-        uses: azure/aks-set-context@v3
+        uses: azure/aks-set-context@v4
         with:
           resource-group: '${{ secrets.RESOURCE_GROUP }}' 
           cluster-name: '${{ secrets.CLUSTER_NAME }}'
 
       - name: Setup kubectl
         id: install-kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@v4
 
       # - name: Run DAST
       #   run: |
@@ -70,7 +70,7 @@ jobs:
           cmd_options: '-a -r scan-report.html'
 
       - name: Publish Attestation DAST
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dast-reports
           path: ./scan-report.html

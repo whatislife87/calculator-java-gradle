@@ -22,9 +22,9 @@ jobs:
         echo "Found report files: $report_files"
     
     - name: Upload ShiftLeft Reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
-        name: shiftleft-reports
+        name: sast-reports
         path: reports/static-analysis/*.json
     
     # - name: Perform Scan
@@ -66,5 +66,5 @@ jobs:
     - name: Upload Test results
       uses: actions/upload-artifact@master
       with:
-          name: Depcheck report
+          name: sca-reports
           path: ${{github.workspace}}/reports

@@ -8,8 +8,8 @@ jobs:
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: calculator-java-gradle
-
     runs-on: ubuntu-latest
+    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions: write-all
       # contents: read
       # packages: write
@@ -64,6 +64,7 @@ jobs:
       ACR_NAME: acrreto
       IMAGE_NAME: calculator-java-gradle
       IMAGE_TAG: ${{ github.run_number }}
+      PASSWD: ${{ secrets.REGISTRY_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -74,11 +75,15 @@ jobs:
           name: package
           path: build/libs
 
-      - uses: azure/docker-login@v2
-        with:
-          login-server: acrreto.azurecr.io
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+      # - uses: azure/docker-login@v2
+      #   with:
+      #     login-server: acrreto.azurecr.io
+      #     username: ${{ secrets.REGISTRY_USERNAME }}
+      #     password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Docker Login
+        run: |
+          docker login $ACR_NAME.azurecr.io -u $ACR_NAME -p $PASSWD
 
       - name: Build Image
         run: |

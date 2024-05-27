@@ -21,3 +21,12 @@ jobs:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/createAndPublishDockerImage.yml@main
     secrets:
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+  
+  ecosystemIntegration:
+    # needs: [developmentIntegration, technicalExcellenceAssurance]
+    needs: [artifactsManagement]
+    uses: retodevsecops/calculator-java-gradle/.github/workflows/releaseKubernetes.yml@main
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}

@@ -24,6 +24,7 @@ jobs:
       BUILD_ID: ${{ github.run_id }}
       ACR_NAME: acrreto
       ACR_PASS: ${{ secrets.REGISTRY_PASSWORD }}
+      SMOKE_TEST_CONTEXT: build-id
 
     steps:
       - name: Checkout repository
@@ -98,8 +99,6 @@ jobs:
       
       - name: Check Deploy
         run: |
-          kubectl get service -n $NAMESPACE
-
           echo 'kubectl describe deployment $IMAGE_NAME -n $NAMESPACE'
           kubectl describe deployment $IMAGE_NAME -n $NAMESPACE
           trap func_describe_and_logs exit
@@ -108,6 +107,8 @@ jobs:
             kubectl describe pod $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE
             echo 'kubectl logs $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE'
             kubectl logs $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE
+            echo 'kubectl get service -n $NAMESPACE'
+            kubectl get service -n $NAMESPACE
           }
           standby_message=true
           while [[ -n $(kubectl get pods -l app=$IMAGE_NAME -n $NAMESPACE -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | grep False) ]]
@@ -117,3 +118,38 @@ jobs:
               standby_message=false
             fi
           done
+
+      - name: Smoke Test
+        run: |
+          echo "kubectl rollout status -n $NAMESPACE deployment/$IMAGE_NAME --timeout=5m"
+          kubectl rollout status -n $NAMESPACE deployment/$IMAGE_NAME --timeout=5m
+          echo "kubectl -n $NAMESPACE describe deployment $IMAGE_NAME"
+          kubectl -n $NAMESPACE describe deployment $IMAGE_NAME
+
+          smoketest_buildid=""
+          runtime="3 minute"
+          endtime=$(date -ud "$runtime" +%s)
+          while [[ $(date -u +%s) -le $endtime ]]
+          do
+            sleep 5
+            echo "nohup kubectl port-forward -n $NAMESPACE deployment/$IMAGE_NAME 32536:8080"
+            nohup kubectl port-forward -n $NAMESPACE deployment/$IMAGE_NAME 32536:8080 &
+            sleep 10
+            echo 'curl "http://localhost:32536/$SMOKE_TEST_CONTEXT"'
+            if curl "http://localhost:32536/$SMOKE_TEST_CONTEXT" | grep --regexp "$BUILD_ID"
+            then
+              smoketest_buildid="OK"
+              echo "BUILD ID OK ✅"
+              exit 0
+            else
+              smoketest_buildid="ERROR"
+              KILL=$(pgrep -f 'kubectl port-forward')
+              kill -9 $KILL
+            fi
+          done
+
+          if [[ $smoketest_buildid == "ERROR" ]]
+          then
+            echo "BUILD ID ERROR ❌"
+            exit 1
+          fi

@@ -1,0 +1,61 @@
+name: DAST
+
+on:
+  workflow_call:
+    secrets:
+      AZURE_CREDENTIALS:
+        required: true
+      RESOURCE_GROUP:
+        required: true
+      CLUSTER_NAME:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
+jobs:
+  dast:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      NAMESPACE: qa-reto
+      ACR_SERVER: acrreto.azurecr.io
+      IMAGE_NAME: calculator-java-gradle
+      SECRET_NAME: attach-acr-to-aks
+      IMAGE_TAG: ${{ github.run_number }}
+      BUILD_ID: ${{ github.run_id }}
+      ACR_NAME: acrreto
+      ACR_PASS: ${{ secrets.REGISTRY_PASSWORD }}
+      SMOKE_TEST_CONTEXT: build-id
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        id: login
+        uses: azure/login@v1.4.3
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: '${{ secrets.RESOURCE_GROUP }}' 
+          cluster-name: '${{ secrets.CLUSTER_NAME }}'
+
+      - name: Setup kubectl
+        id: install-kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Run DAST
+        uses: |
+          chmod -R 777  ./
+          nohup kubectl port-forward -n $NAMESPACE deployment/$IMAGE_NAME 32536:8080 &
+          sleep 3
+          docker run -u 0 --network="host" -v ${{ github.workspace }}:/zap/wrk/:rw owasp/zap2docker-stable zap-full-scan.py -t http://localhost:32536 -r scan-report.html
+
+      - name: Publish Attestation DAST
+        uses: actions/upload-artifact@v3
+        with:
+          name: dast-reports
+          path: scan-report.html

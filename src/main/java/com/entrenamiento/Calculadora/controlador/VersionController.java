@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/version")
+@RequestMapping("/build-id")
 public class VersionController {
     @GetMapping(produces = "application/json; charset=UTF-8")
     @ResponseBody
-    public ResponseEntity<String> version() {
-        return new ResponseEntity<>("calculator-java-gradle V#{Build.BuildNumber}#", HttpStatus.OK);
+    public ResponseEntity<String> buildid() {
+        return new ResponseEntity<>("calculator-java-gradle #{BUILD_ID}#", HttpStatus.OK);
     }
 }

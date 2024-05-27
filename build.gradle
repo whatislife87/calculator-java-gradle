@@ -17,6 +17,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	classpath 'org.owasp:dependency-check-gradle:9.2.0'
 }
 
 sonar {
@@ -25,7 +26,6 @@ sonar {
 	property "sonar.organization", "retodevsecops"
     property "sonar.projectKey", "retodevsecops_calculator-java-gradle"
     property "sonar.host.url", "https://sonarcloud.io"
-	//property "sonar.token", "5f9bf6338e44be1045e82eb883aaa53e4f06b7fa"
   }
 }
 

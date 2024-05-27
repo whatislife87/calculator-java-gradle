@@ -64,6 +64,7 @@ jobs:
       ACR_NAME: acrreto
       IMAGE_NAME: calculator-java-gradle
       IMAGE_TAG: ${{ github.run_number }}
+      ACR_PASS: ${{ secrets.REGISTRY_PASSWORD }}
 
     steps:
       - name: Checkout repository
@@ -82,7 +83,7 @@ jobs:
 
       - name: Docker Login
         run: |
-          docker login $ACR_NAME.azurecr.io -u $ACR_NAME -p ${{ secrets.REGISTRY_PASSWORD }}
+          docker login $ACR_NAME.azurecr.io -u $ACR_NAME -p $ACR_PASS
 
       - name: Build Image
         run: |

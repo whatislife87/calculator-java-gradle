@@ -9,11 +9,22 @@ on:
         required: true
       CLUSTER_NAME:
         required: true
-
+      REGISTRY_PASSWORD:
+        required: true
 jobs:
   aks:
     runs-on: ubuntu-latest
     permissions: write-all
+    env:
+      NAMESPACE: qa-reto
+      ACR_SERVER: acrreto.azurecr.io
+      IMAGE_NAME: calculator-java-gradle
+      SECRET_NAME: attach-acr-to-aks
+      IMAGE_TAG: ${{ github.run_number }}
+      BUILD_ID: ${{ github.run_id }}
+      ACR_NAME: acrreto
+      ACR_PASS: ${{ secrets.REGISTRY_PASSWORD }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -35,6 +46,74 @@ jobs:
         id: install-kubectl
         uses: azure/setup-kubectl@v3
       
-      - name: Kubectl Get Nodes
+      - uses: azure/setup-helm@v4.2.0
+        with:
+           version: 'latest'
+        id: install
+      
+      - name: Check Nodes
         run: |
           kubectl get nodes
+      
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          files: '["charts/values.yaml"]'
+        env:
+          NAMESPACE: ${{ env.NAMESPACE }}
+          ACR_SERVER: ${{ env.ACR_SERVER }}
+          IMAGE_NAME: ${{ env.IMAGE_NAME }}
+          IMAGE_TAG: ${{ env.IMAGE_TAG }}
+
+      - name: Check Helm Files
+        run: |
+          helm lint charts \
+            --values charts/values.yaml \
+            --set deploy.imageTag=$IMAGE_TAG,deploy.build=$BUILD_ID
+          helm template charts \
+            --values charts/values.yaml \
+            --set deploy.imageTag=$IMAGE_TAG,deploy.build=$BUILD_ID
+      
+      - name: Create/Update Secret
+        run: |
+          if kubectl get secret $SECRET_NAME -n $NAMESPACE > log-qa.txt 2>&1; then
+            echo "The Secret $SECRET_NAME already exists in the Namespace $NAMESPACE. It will not be created again."
+          else
+            kubectl create secret docker-registry $SECRET_NAME \
+              --namespace $NAMESPACE \
+              --docker-server=$ACR_SERVER \
+              --docker-username=$ACR_NAME \
+              --docker-password=$ACR_PASS
+            echo "Created secret $SECRET_NAME"
+          fi
+      
+      - name: Deploy Container
+        run: |
+          helm upgrade "$IMAGE_NAME" \
+            "charts" \
+            --namespace "$NAMESPACE" \
+            --set "deploy.imageTag=$IMAGE_TAG,deploy.build=$BUILD_ID" \
+            -f "charts/values.yaml" \
+            --install \
+            --history-max 2
+      
+      - name: Check Deploy
+        run: |
+          kubectl get service -n $NAMESPACE
+
+          echo 'kubectl describe deployment $IMAGE_NAME -n $NAMESPACE'
+          kubectl describe deployment $IMAGE_NAME -n $NAMESPACE
+          trap func_describe_and_logs exit
+          function func_describe_and_logs(){
+            echo 'kubectl describe pod $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE'
+            kubectl describe pod $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE
+            echo 'kubectl logs $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE'
+            kubectl logs $(kubectl get pods --sort-by=.status.startTime -l app=$IMAGE_NAME -n $NAMESPACE | awk 'END{ print $1}') -n $NAMESPACE
+          }
+          standby_message=true
+          while [[ -n $(kubectl get pods -l app=$IMAGE_NAME -n $NAMESPACE -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}' | grep False) ]]
+          do
+            if $standby_message ; then
+              echo "Wating for pod, waiting for the status condition to be Ready"
+              standby_message=false
+            fi
+          done

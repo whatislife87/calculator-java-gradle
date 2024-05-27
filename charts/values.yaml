@@ -1,0 +1,5 @@
+deploy:
+  namespace: #{NAMESPACE}#
+  acrServer: #{ACR_SERVER}#
+  name: #{IMAGE_NAME}#
+  secretName: #{SECRET_NAME}#

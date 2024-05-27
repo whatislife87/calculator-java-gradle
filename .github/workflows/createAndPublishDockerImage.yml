@@ -8,9 +8,8 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  buildAndPushImage:
+  ghcr:
     runs-on: ubuntu-latest
-    # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions: write-all
       # contents: read
       # packages: write
@@ -57,3 +56,17 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
+
+  acr:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+    - uses: azure/docker-login@v2
+      with:
+        login-server: acrreto.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+    - run: |
+        docker build . -t acrreto.azurecr.io/calculator-java-gradle:${{ github.sha }}
+        docker push acrreto.azurecr.io/calculator-java-gradle:${{ github.sha }}

@@ -19,3 +19,5 @@ jobs:
     # needs: [developmentIntegration, technicalExcellenceAssurance]
     needs: [developmentIntegration]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/createAndPublishDockerImage.yml@main
+    secrets:
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}

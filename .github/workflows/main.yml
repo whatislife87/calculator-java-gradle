@@ -10,20 +10,18 @@ jobs:
       RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
       RETO_SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
   
-  # technicalExcellenceAssurance:
-  #   uses: retodevsecops/calculator-java-gradle/.github/workflows/sastAndSca.yml@main
-  #   secrets:
-  #     RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+  technicalExcellenceAssurance:
+    uses: retodevsecops/calculator-java-gradle/.github/workflows/sastAndSca.yml@main
+    secrets:
+      RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
 
   artifactsManagement:
-    # needs: [developmentIntegration, technicalExcellenceAssurance]
-    needs: [developmentIntegration]
+    needs: [developmentIntegration,technicalExcellenceAssurance]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/createAndPublishDockerImage.yml@main
     secrets:
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   
   ecosystemIntegration:
-    # needs: [developmentIntegration, technicalExcellenceAssurance]
     needs: [artifactsManagement]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/releaseKubernetes.yml@main
     secrets:
@@ -33,7 +31,6 @@ jobs:
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   
   securityTesting:
-    # needs: [developmentIntegration, technicalExcellenceAssurance]
     needs: [ecosystemIntegration]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/dast.yml@main
     secrets:

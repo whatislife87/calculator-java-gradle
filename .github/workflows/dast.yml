@@ -48,9 +48,9 @@ jobs:
         uses: azure/setup-kubectl@v3
 
       - name: Run DAST
-        uses: |
-          chmod -R 777  ./
-          nohup kubectl port-forward -n $NAMESPACE deployment/$IMAGE_NAME 32536:8080 &
+        run: |
+          chmod -R 777 .
+          kubectl port-forward -n $NAMESPACE deployment/$IMAGE_NAME 32536:8080 &
           sleep 3
           docker run -u 0 --network="host" -v ${{ github.workspace }}:/zap/wrk/:rw owasp/zap2docker-stable zap-full-scan.py -t http://localhost:32536 -r scan-report.html
 

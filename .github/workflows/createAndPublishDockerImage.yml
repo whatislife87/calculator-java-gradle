@@ -3,12 +3,13 @@ name: Create And Publish Docker Image
 on:
   workflow_call:
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-
 jobs:
   ghcr:
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: calculator-java-gradle
+      IMAGE_TAG: ${{ github.run_number }}
+
     runs-on: ubuntu-latest
     permissions: write-all
       # contents: read
@@ -39,7 +40,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
       - name: Build and push Docker image
         id: push
@@ -53,20 +54,74 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}:${{ env.IMAGE_TAG }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
 
   acr:
     runs-on: ubuntu-latest
     permissions: write-all
+    env:
+      ACR_NAME: acrreto
+      IMAGE_NAME: calculator-java-gradle
+      IMAGE_TAG: ${{ github.run_number }}
+
     steps:
-    - uses: azure/docker-login@v2
-      with:
-        login-server: acrreto.azurecr.io
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-    
-    - run: |
-        docker build . -t acrreto.azurecr.io/calculator-java-gradle:${{ github.sha }}
-        docker push acrreto.azurecr.io/calculator-java-gradle:${{ github.sha }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: package
+          path: build/libs
+          
+      - uses: azure/docker-login@v2
+        with:
+          login-server: acrreto.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build Image
+        run: |
+          docker build . -t $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+            
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        with:
+          image-ref: 'docker.io/${{ env.ACR_NAME }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'MEDIUM,HIGH,CRITICAL'
+
+      - name: Run Grype vulnerability scanner
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+          grype version
+          grype db update
+          pip install termgraph
+          git clone https://github.com/opt-nc/grype-contribs.git
+          cd grype-contribs
+          export IMAGE=$ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG
+          echo "☝️ About to analyze $IMAGE with grype ❕"
+          grype $IMAGE -o template -t tmpl/csv-vulnerability_id-severity-no-headers.tmpl > work/analysis.csv
+          echo "✅ grype analysis done."
+          echo "$(tail -n +2 work/analysis.csv)" > work/analysis.csv
+          echo "➕ Aggregating datas :"
+          awk -F, '{a[$1]+=$2;}END{for(i in a)print i", "a[i];}' work/analysis.csv > work/analysis-aggregated.csv
+          cat work/analysis-aggregated.csv
+          echo "📊 Charting analysis"
+          termgraph  work/analysis-aggregated.csv --title "🛡️  Grype report for [${IMAGE}] 🐳"
+          grype $IMAGE -o template -t tmpl/html-table.tmpl > work/analysis.html
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: grype-reports
+          path: grype-contribs/work
+          
+      - name: Push Image    
+        run: |
+          docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:$IMAGE_TAG

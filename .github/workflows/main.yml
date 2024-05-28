@@ -2,7 +2,7 @@ name: Reto DevSecOps
 
 on:
   workflow_dispatch:
-
+    
 jobs:
   developmentIntegration:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildJavaGradle.yml@main

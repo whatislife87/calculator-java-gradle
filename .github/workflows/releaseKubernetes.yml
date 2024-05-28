@@ -2,6 +2,11 @@ name: Release Kubernetes
 
 on:
   workflow_call:
+    inputs:
+      NAMESPACE:
+        description: 'The namespace to deploy to'
+        required: true
+        type: string
     secrets:
       AZURE_CREDENTIALS:
         required: true

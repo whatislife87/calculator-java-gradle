@@ -24,15 +24,28 @@ jobs:
   ecosystemIntegration:
     needs: [artifactsManagement]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/releaseKubernetes.yml@main
+    with:
+      NAMESPACE: 'qa-reto'
+    secrets:
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+      RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
+      CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+    
+  securityTesting:
+    needs: [ecosystemIntegration]
+    uses: retodevsecops/calculator-java-gradle/.github/workflows/dast.yml@main
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
       CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
   
-  securityTesting:
-    needs: [ecosystemIntegration]
-    uses: retodevsecops/calculator-java-gradle/.github/workflows/dast.yml@main
+  deliveryProduction:
+    needs: [securityTesting]
+    uses: retodevsecops/calculator-java-gradle/.github/workflows/releaseKubernetes.yml@main
+    with:
+      NAMESPACE: 'prod-reto'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}

@@ -11,12 +11,13 @@ on:
         required: true
       REGISTRY_PASSWORD:
         required: true
+
 jobs:
   aks:
     runs-on: ubuntu-latest
     permissions: write-all
     env:
-      NAMESPACE: qa-reto
+      NAMESPACE: ${{ inputs.NAMESPACE }}
       ACR_SERVER: acrreto.azurecr.io
       IMAGE_NAME: calculator-java-gradle
       SECRET_NAME: attach-acr-to-aks

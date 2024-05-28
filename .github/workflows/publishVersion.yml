@@ -2,6 +2,11 @@ name: Publish Version
 
 on:
   workflow_call:
+    secrets:
+      RETO_GITHUB_TOKEN:
+        required: true
+      RETO_SONAR_TOKEN:
+        required: true
 
 jobs:
   semantic_release:

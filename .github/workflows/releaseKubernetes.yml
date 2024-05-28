@@ -16,11 +16,7 @@ on:
         required: true
       REGISTRY_PASSWORD:
         required: true
-      RETO_GITHUB_TOKEN:
-        required: true
-      RETO_SONAR_TOKEN:
-        required: true
-
+      
 jobs:
   aks:
     runs-on: ubuntu-latest

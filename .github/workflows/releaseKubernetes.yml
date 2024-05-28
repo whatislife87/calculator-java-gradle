@@ -7,6 +7,10 @@ on:
         description: 'The namespace to deploy to'
         required: true
         type: string
+      ENVIRONMENT:
+        description: 'Environment to deploy to'
+        required: true
+        type: string  
     secrets:
       AZURE_CREDENTIALS:
         required: true
@@ -20,6 +24,8 @@ on:
 jobs:
   aks:
     runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.ENVIRONMENT }}
     permissions: write-all
     env:
       NAMESPACE: ${{ inputs.NAMESPACE }}

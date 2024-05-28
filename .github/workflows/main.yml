@@ -45,7 +45,7 @@ jobs:
     needs: [securityTesting]
     uses: retodevsecops/calculator-java-gradle/.github/workflows/releaseKubernetes.yml@main
     with:
-      NAMESPACE: 'prod-reto'
+      NAMESPACE: 'pdn-reto'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}

@@ -2,7 +2,7 @@ name: Reto DevSecOps
 
 on:
   workflow_dispatch:
-    
+
 jobs:
   developmentIntegration:
     uses: retodevsecops/calculator-java-gradle/.github/workflows/buildJavaGradle.yml@main
@@ -51,3 +51,4 @@ jobs:
       RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
       CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}

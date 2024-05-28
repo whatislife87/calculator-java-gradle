@@ -31,6 +31,8 @@ jobs:
       RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
       CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
+      RETO_SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
     
   securityTesting:
     needs: [ecosystemIntegration]
@@ -40,8 +42,6 @@ jobs:
       RESOURCE_GROUP: ${{ secrets.RESOURCE_GROUP }}
       CLUSTER_NAME: ${{ secrets.CLUSTER_NAME }}
       REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      RETO_GITHUB_TOKEN: ${{ secrets.RETO_GITHUB_TOKEN }}
-      RETO_SONAR_TOKEN: ${{ secrets.RETO_SONAR_TOKEN }}
   
   deliveryProduction:
     needs: [securityTesting]
